@@ -218,6 +218,42 @@ void print_expenses_by_month(int month, int year) {
     }
 }
 
+// Ham in chi tieu lon nhat va nho nhat theo thang
+void print_min_max_expenses_by_month(int month, int year) {
+    Expense* current = head;
+    Expense* minExpense = NULL;
+    Expense* maxExpense = NULL;
+
+    while (current != NULL) {
+        int expense_day, expense_month, expense_year;
+        sscanf(current->date, "%d/%d/%d", &expense_day, &expense_month, &expense_year);
+
+        if (expense_month == month && expense_year == year) {
+            if (minExpense == NULL || current->amount < minExpense->amount) {
+                minExpense = current;
+            }
+            if (maxExpense == NULL || current->amount > maxExpense->amount) {
+                maxExpense = current;
+            }
+        }
+        
+        current = current->next;
+    }
+
+    printf("Chi tieu trong thang %02d/%04d:\n", month, year);
+    if (minExpense) {
+        printf("- Chi tieu nho nhat: %s - %.2f VND - Ngay: %s\n", minExpense->description, minExpense->amount, minExpense->date);
+    } else {
+        printf("- Khong co chi tieu nho nhat trong thang.\n");
+    }
+    
+    if (maxExpense) {
+        printf("- Chi tieu lon nhat: %s - %.2f VND - Ngay: %s\n", maxExpense->description, maxExpense->amount, maxExpense->date);
+    } else {
+        printf("- Khong co chi tieu lon nhat trong thang.\n");
+    }
+}
+
 void menu() {
     int choice;
     do {
@@ -229,7 +265,8 @@ void menu() {
         printf("5. Sua chi tieu\n");
         printf("6. Luu chi tieu vao file\n");
         printf("7. Xem chi tieu theo thang\n");
-        printf("8. Thoat\n");
+        printf("8. Xem chi tieu lon nhat va nho nhat theo thang\n");
+        printf("9. Thoat\n");
         printf("Chon chuc nang: ");
         scanf("%d", &choice);
         
@@ -247,10 +284,17 @@ void menu() {
                 print_expenses_by_month(month, year);
                 break;
             }
-            case 8: printf("Thoat chuong trinh.\n"); break;
+            case 8: {
+                int month, year;
+                printf("Nhap thang va nam (MM/YYYY): ");
+                scanf("%d/%d", &month, &year);
+                print_min_max_expenses_by_month(month, year);
+                break;
+            }
+            case 9: printf("Thoat chuong trinh.\n"); break;
             default: printf("Chuc nang khong hop le. Vui long chon lai!\n");
         }
-    } while (choice != 8);
+    } while (choice != 9);
 }
 
 int main() {
