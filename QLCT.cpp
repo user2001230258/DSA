@@ -14,21 +14,18 @@ typedef struct Expense {
 
 Expense* head = NULL;
 
-// Ham chuyen doi ngay sang kieu so nguyen
 int dateToInt(const char* date) {
     int day, month, year;
     sscanf(date, "%d/%d/%d", &day, &month, &year);
     return year * 10000 + month * 100 + day;
 }    
 
-// Kiem tra ngay hop le
 bool is_valid_date(int day, int month, int year) {
     if (month < 1 || month > 12) return false;
     if (day < 1) return false;
     
     int days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    // Kiem tra nam nhuan
     if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
         if (day > 29) return false;
     } else {
@@ -38,7 +35,6 @@ bool is_valid_date(int day, int month, int year) {
     return true;
 }
 
-// Ham them chi tieu
 void add_expense() {
     Expense* newExpense = (Expense*)malloc(sizeof(Expense));
     if (newExpense == NULL) {
@@ -48,7 +44,7 @@ void add_expense() {
     printf("Nhap so tien: ");
     scanf("%f", &newExpense->amount);
     printf("Nhap mo ta: ");
-    getchar(); // xoa ky tu newline
+    getchar(); 
     fgets(newExpense->description, DESCRIPTION_LENGTH, stdin);
     newExpense->description[strcspn(newExpense->description, "\n")] = 0;
 
@@ -67,7 +63,6 @@ void add_expense() {
     printf("Da them chi tieu thanh cong!\n");
 }
 
-// Ham xem chi tieu
 void view_expenses() {
     Expense* current = head;
     printf("Danh sach chi tieu:\n");
@@ -77,7 +72,6 @@ void view_expenses() {
     }
 }
 
-// Ham tinh tong chi tieu
 float total_expenses() {
     float total = 0;
     Expense* current = head;
@@ -88,7 +82,6 @@ float total_expenses() {
     return total;
 }
 
-// Ham xoa chi tieu
 void delete_expense() {
     int index;
     printf("Nhap so thu tu chi tieu can xoa: ");
@@ -122,7 +115,6 @@ void delete_expense() {
     printf("Da xoa chi tieu thanh cong!\n");
 }
 
-// Ham chinh sua chi tieu
 void edit_expense() {
     int index;
     printf("Nhap so thu tu chi tieu can sua: ");
@@ -164,7 +156,6 @@ void edit_expense() {
     printf("Da sua chi tieu thanh cong!\n");
 }
 
-// Ham luu chi tieu vao file
 void save_expenses() {
     FILE *file = fopen("expenses.txt", "w");
     if (file) {
@@ -180,7 +171,6 @@ void save_expenses() {
     }
 }
 
-// Ham tai danh sach cac chi tieu
 void load_expenses() {
     FILE *file = fopen("expenses.txt", "r");
     if (file) {
@@ -205,6 +195,29 @@ void load_expenses() {
     }
 }
 
+// Ham in chi tieu theo thang
+void print_expenses_by_month(int month, int year) {
+    Expense* current = head;
+    int expense_found = 0;
+    printf("Cac chi tieu trong thang %02d/%04d:\n", month, year);
+    
+    while (current != NULL) {
+        int expense_day, expense_month, expense_year;
+        sscanf(current->date, "%d/%d/%d", &expense_day, &expense_month, &expense_year);
+        
+        if (expense_month == month && expense_year == year) {
+            printf("# %s - %.2f VND - Ngay: %s\n", current->description, current->amount, current->date);
+            expense_found = 1;
+        }
+        
+        current = current->next;
+    }
+    
+    if (!expense_found) {
+        printf("Khong co chi tieu nao trong thang %02d/%04d.\n", month, year);
+    }
+}
+
 void menu() {
     int choice;
     do {
@@ -215,7 +228,8 @@ void menu() {
         printf("4. Xoa chi tieu\n");
         printf("5. Sua chi tieu\n");
         printf("6. Luu chi tieu vao file\n");
-        printf("7. Thoat\n");
+        printf("7. Xem chi tieu theo thang\n");
+        printf("8. Thoat\n");
         printf("Chon chuc nang: ");
         scanf("%d", &choice);
         
@@ -226,10 +240,17 @@ void menu() {
             case 4: delete_expense(); break;
             case 5: edit_expense(); break;
             case 6: save_expenses(); break;
-            case 7: printf("Thoat chuong trinh.\n"); break;
+            case 7: {
+                int month, year;
+                printf("Nhap thang va nam (MM/YYYY): ");
+                scanf("%d/%d", &month, &year);
+                print_expenses_by_month(month, year);
+                break;
+            }
+            case 8: printf("Thoat chuong trinh.\n"); break;
             default: printf("Chuc nang khong hop le. Vui long chon lai!\n");
         }
-    } while (choice != 7);
+    } while (choice != 8);
 }
 
 int main() {
