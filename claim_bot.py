@@ -1,40 +1,28 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
+from telegram import Bot
+import schedule
+import time
 
-#define DESCRIPTION_LENGTH 100
+# 🔧 Thay token và chat_id của bạn
+TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+CHAT_ID = YOUR_CHAT_ID  # ví dụ: 123456789
 
-typedef struct Expense {
-    float amount;
-    char description[DESCRIPTION_LENGTH];
-    char date[11]; 
-    struct Expense *next;
-} Expense;
+# 🔗 Link faucet
+LINK_CLAIM = "https://testnet.pharosnetwork.xyz/faucet"
 
-Expense* head = NULL;
+bot = Bot(token=TOKEN)
 
-int dateToInt(const char* date) {
-    int day, month, year;
-    sscanf(date, "%d/%d/%d", &day, &month, &year);
-    return year * 10000 + month * 100 + day;
-}    
+def nhac_claim():
+    message = f"💧 Đến giờ claim faucet rồi!\n👉 {LINK_CLAIM}"
+    bot.send_message(chat_id=CHAT_ID, text=message)
 
-bool is_valid_date(int day, int month, int year) {
-    if (month < 1 || month > 12) return false;
-    if (day < 1) return false;
-    
-    int days_in_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+# Cứ mỗi 12 tiếng sẽ nhắc
+schedule.every(12).hours.do(nhac_claim)
 
-    if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-        if (day > 29) return false;
-    } else {
-        if (day > days_in_month[month - 1]) return false;
-    }
-    
-    return true;
-}
+print("🤖 Bot nhắc claim đang chạy...")
 
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 void add_expense() {
     Expense* newExpense = (Expense*)malloc(sizeof(Expense));
     if (newExpense == NULL) {
